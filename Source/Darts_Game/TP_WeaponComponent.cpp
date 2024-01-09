@@ -4,6 +4,7 @@
 #include "TP_WeaponComponent.h"
 #include "Darts_GameCharacter.h"
 #include "Darts_GameProjectile.h"
+#include "Drats.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -63,6 +64,36 @@ void UTP_WeaponComponent::Fire()
 	}
 }
 
+void UTP_WeaponComponent::Shoot()
+{
+	if (Character == nullptr || Character->GetController() == nullptr)
+	{
+		return;
+	}
+
+	DartsClass = TSoftClassPtr<class ADrats>(FSoftObjectPath("Game/Darts/MyDrats.MyDrats")).LoadSynchronous(); 
+
+	if (DartsClass != nullptr) {
+		UWorld* const World = GetWorld();
+		if (World != nullptr)
+		{
+			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
+			const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+			const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+
+			// Spawn the projectile at the muzzle
+			World->SpawnActor<ADrats>(DartsClass, SpawnLocation, SpawnRotation);
+		}
+	}
+	// Try and play the sound if specified
+	if (FireSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, Character->GetActorLocation());
+	}
+}
+
+
 void UTP_WeaponComponent::AttachWeapon(ADarts_GameCharacter* TargetCharacter)
 {
 	Character = TargetCharacter;
@@ -91,6 +122,8 @@ void UTP_WeaponComponent::AttachWeapon(ADarts_GameCharacter* TargetCharacter)
 		{
 			// Fire
 			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &UTP_WeaponComponent::Fire);
+			// Shoot
+			EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &UTP_WeaponComponent::Shoot);
 		}
 	}
 }

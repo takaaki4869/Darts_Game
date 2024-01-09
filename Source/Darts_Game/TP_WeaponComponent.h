@@ -17,6 +17,10 @@ public:
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
 	TSubclassOf<class ADarts_GameProjectile> ProjectileClass;
+	
+	/** Drats class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category=Darts)
+	TSubclassOf<class ADrats> DartsClass;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
@@ -37,6 +41,10 @@ public:
 	/** Fire Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
+	
+	/** Fire Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	class UInputAction* ShootAction;
 
 	/** Sets default values for this component's properties */
 	UTP_WeaponComponent();
@@ -48,6 +56,10 @@ public:
 	/** Make the weapon Fire a Projectile */
 	UFUNCTION(BlueprintCallable, Category="Weapon")
 	void Fire();
+
+	/** Make the weapon Fire a Projectile */
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void Shoot();
 
 protected:
 	/** Ends gameplay for this component. */
